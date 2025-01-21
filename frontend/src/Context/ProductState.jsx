@@ -3,7 +3,7 @@ import axios from 'axios';
 import ProductContext from './ProductContext';
 
 // Base API URL
-const BASE_URL = 'https://swift-cart-mern.onrender.com/api';
+const BASE_URL = 'https://swift-cart-mern-stack-backend.onrender.com/api';
 
 const ProductState = (props) => {
   

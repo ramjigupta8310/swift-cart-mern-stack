@@ -23,7 +23,7 @@ const CartState = ({ children }) => {
 
 
     const axiosInstance = axios.create({
-        baseURL: 'https://swift-cart-mern.onrender.com/api',
+        baseURL: 'https://swift-cart-mern-stack-backend.onrender.com/api',
         headers: {
             Authorization: token,
         },
