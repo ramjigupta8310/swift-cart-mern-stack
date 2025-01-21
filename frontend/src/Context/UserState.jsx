@@ -6,7 +6,7 @@ export const UserState = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const BASE_URL = "https://swift-cart-mern-stack.onrender.com/api";
+  const BASE_URL = "https://swift-cart-mern-stack-backend.onrender.com/api";
 
   // login user
   const loginUser = async (formData) => {
