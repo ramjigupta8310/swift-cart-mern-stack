@@ -4,8 +4,6 @@ import { sendOTP } from "../utils/nodemailer.js";
 import crypto from "crypto";
 import validator from "validator";
 import jwt from "jsonwebtoken";
-import dotenv from "dotenv";
-dotenv.config();
 
 // Temporary storage for user data during registration
 let tempUsers = {};
@@ -62,32 +60,36 @@ export const registerUser = async (req, res) => {
     }
 
     // Hash The Password
+    // ( Here 10 is saltRounds
+    // Salt rounds bcrypt me hashing process ka complexity level hota hai.
+    // Salt round batata hai hashing algorithm ko kitni baar repeat karna hai.
+    // Jitna zyada salt round, utna hashing slow aur secure hoga.
+    // Default: Usually 10 rounds recommended hote hain.)
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Generate OTP
     const otp = crypto.randomBytes(3).toString("hex");
-    const otpExpiration = Date.now() + 60000; // OTP expires in 1 minute
+    const otpExpiration = Date.now() + 60000; // OTP Expires In 1 Minute
 
     // Temporarily Store User Data
     tempUsers[lowerCaseEmail] = {
       name,
-      email: lowerCaseEmail, // Store lowercase email
+      email: lowerCaseEmail,
       password: hashedPassword,
       otp,
       otpExpiration,
     };
 
-    res.status(200).json({
+    res.status(202).json({
       message: "OTP sent to email. Please verify",
     });
 
-    // Send OTP to email
+    // Send OTP To Email
     await sendOTP(lowerCaseEmail, otp);
   } catch (error) {
     console.error("Error during user registration:", error);
     return res.status(500).json({
-      message: "Error during user registration",
-      error: error.message,
+      message: "Something went wrong. Please try again later",
     });
   }
 };
@@ -134,19 +136,19 @@ export const verifyRegisterationOTP = async (req, res) => {
       email: user.email,
       password: user.password,
     });
-
+    
     await newUser.save();
     // Remove The Temporary Data After Successful Registration
     delete tempUsers[lowerCaseEmail];
 
-    return res.status(200).json({
+    return res.status(201).json({
       message: "OTP verified successfully! User registered",
     });
   } catch (error) {
-    console.error("OTP verification error:", error);
-    res
-      .status(500)
-      .json({ message: "Error during OTP verification", error: error.message });
+    console.error("Error during OTP verification for registration:", error);
+    return res.status(500).json({
+      message: "Something went wrong. Please try again later",
+    });
   }
 };
 
@@ -168,23 +170,23 @@ export const requestRegistrationNewOTP = async (req, res) => {
 
     // Generate New OTP
     const newOtp = crypto.randomBytes(3).toString("hex");
-    const newOtpExpiration = Date.now() + 60000; // 1 minutes expiry
+    const newOtpExpiration = Date.now() + 60000;
 
     // Update Temporary User Data With New Otp And Expiration
     tempUsers[lowerCaseEmail].otp = newOtp;
     tempUsers[lowerCaseEmail].otpExpiration = newOtpExpiration;
 
-    res.status(200).json({
-      message: "New OTP sent to email. Please verify.",
+    res.status(202).json({
+      message: "New OTP sent to email. Please verify",
     });
 
     // Send the new OTP to email
     await sendOTP(lowerCaseEmail, newOtp);
   } catch (error) {
-    console.error("Error during new OTP request:", error);
-    res
-      .status(500)
-      .json({ message: "Error during new OTP request", error: error.message });
+    console.error("Error during new OTP request for registration:", error);
+    return res.status(500).json({
+      message: "Something went wrong. Please try again later",
+    });
   }
 };
 
@@ -217,7 +219,7 @@ export const userLogin = async (req, res) => {
     // Compare Password
     const isPasswordMatch = await bcrypt.compare(password, user.password);
     if (!isPasswordMatch) {
-      return res.status(400).json({ message: "Invalid email or password" });
+      return res.status(401).json({ message: "Invalid email or password" });
     }
 
     // Generate JWT token
@@ -233,10 +235,9 @@ export const userLogin = async (req, res) => {
       token,
     });
   } catch (error) {
-    console.error("Login error:", error);
+    console.error("Error during login:", error);
     return res.status(500).json({
-      message: "Something went wrong. Please try again later.",
-      error: error.message,
+      message: "Something went wrong. Please try again later",
     });
   }
 };
@@ -279,7 +280,7 @@ export const sendForgotPasswordOTP = async (req, res) => {
     resetRequests[lowerCaseEmail] = { otp, otpExpiration, otpVerified: false };
 
     // Send OTP To The User's Email
-    res.status(200).json({
+    res.status(202).json({
       message: "OTP sent to your email. Please verify to reset your password.",
     });
 
@@ -287,9 +288,9 @@ export const sendForgotPasswordOTP = async (req, res) => {
     await sendOTP(lowerCaseEmail, otp);
   } catch (error) {
     console.error("Error during forgot password OTP request:", error);
-    return res
-      .status(500)
-      .json({ message: "Error during forgot password", error: error.message });
+    return res.status(500).json({
+      message: "Something went wrong. Please try again later",
+    });
   }
 };
 
@@ -343,10 +344,10 @@ export const verifyForgotPasswordOTP = async (req, res) => {
       message: "OTP verified successfully. You can now reset your password.",
     });
   } catch (error) {
-    console.error("Error during OTP verification:", error);
-    return res
-      .status(500)
-      .json({ message: "Error during OTP verification", error: error.message });
+    console.error("Error during OTP verification for forget password:", error);
+    return res.status(500).json({
+      message: "Something went wrong. Please try again later"
+    });
   }
 };
 
@@ -381,7 +382,7 @@ export const resendOTPForForgetPassword = async (req, res) => {
 
     // If Email Matches, Send Success Response
     if (resetRequest) {
-      res.status(200).json({
+      res.status(202).json({
         message: "New OTP sent to your email. Please verify",
       });
     }
@@ -389,10 +390,10 @@ export const resendOTPForForgetPassword = async (req, res) => {
     // Send the new OTP to the user's email
     await sendOTP(lowerCaseEmail, newOtp);
   } catch (error) {
-    console.error("Error during resend OTP:", error);
-    return res
-      .status(500)
-      .json({ message: "Error during resend OTP", error: error.message });
+    console.error("Error during resend OTP for forget password:", error);
+    return res.status(500).json({
+      message: "Something went wrong. Please try again later"
+    });
   }
 };
 
@@ -462,16 +463,17 @@ export const resetPassword = async (req, res) => {
     });
   } catch (error) {
     console.error("Error during password reset:", error);
-    return res
-      .status(500)
-      .json({ message: "Error during password reset", error: error.message });
+    return res.status(500).json({
+      message: "Something went wrong. Please try again later"
+    });
   }
 };
 
 // get user detail
 export const getUserDetails = async (req, res) => {
   try {
-    const user = await User.findById(req.user.userId); // Fetch user data using userId from the token
+    // Fetch User Data Using UserId From The Token
+    const user = await User.findById(req.user.userId); 
     res.status(200).json({
       user: {
         name: user.name,
@@ -480,6 +482,8 @@ export const getUserDetails = async (req, res) => {
     });
   } catch (error) {
     console.error("Error during getUserDetails:", error);
-    res.status(500).json({ message: "Error during get user details", error: error.message });
+    return res.status(500).json({
+      message: "Something went wrong. Please try again later"
+    });
   }
 };
