@@ -31,7 +31,6 @@ const ProductState = (props) => {
       const res = await axios.get(`${BASE_URL}/product/getallcategories`);
       setAllCategories(res.data.categories); // Store static categories
       setLoadingCategories(false);
-      // console.log(res,"allCategories")
     } catch (error) {
       console.error("Error fetching categories:", error.message);
       setLoadingCategories(false);
