@@ -5,7 +5,7 @@ import cors from 'cors';
 import connectDB from './db/connectDB.js';
 import userRouter from "./Routes/user.router.js"
 import cartRouter from "./Routes/cart.router.js"
-import paymentRouetr from './Routes/payment.router.js'
+// import paymentRouetr from './Routes/payment.router.js'
 
 
 // Load environment variables from .env file
@@ -29,7 +29,7 @@ app.use('/api/user',userRouter);
 app.use('/api/cart',cartRouter);
 
 // payment router
-app.use('/api/payment',paymentRouetr)
+// app.use('/api/payment',paymentRouetr)
 
 
 // MongoDB connection
