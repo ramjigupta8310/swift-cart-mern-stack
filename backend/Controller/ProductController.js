@@ -122,11 +122,11 @@ const categoryModels = {
   "kids-wear": KidsWear,
   "sports-shoes": SportsShoes,
   "office-wear": OfficeWear,
-  "mens-wear": MensWear,
+  "men's-wear": MensWear,
   "casual-styles": CasualStyles,
   "western-wear": WesternWear,
   "wfh-wear": WfhWear,
-  "womens-footwear": WomensFootwear
+  "women's-footwear": WomensFootwear
 };
 
 export const getProductsByCategory = async (req, res) => {
