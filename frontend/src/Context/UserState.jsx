@@ -6,7 +6,7 @@ export const UserState = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const BASE_URL = "https://swift-cart-mern-stack-backend.onrender.com/api";
+  const BASE_URL = import.meta.env.VITE_BASE_URL;
 
   // login user
   const loginUser = async (formData) => {
@@ -144,13 +144,6 @@ export const UserState = ({ children }) => {
   };
 
   const resetPassword = async (email, newPassword, confirmPassword) => {
-    console.log(
-      "email: ",
-      email,
-      "newPassword: ",
-      "newPassword: ",
-      confirmPassword
-    );
     try {
       const response = await axios.post(`${BASE_URL}/user/reset-password`, {
         email,

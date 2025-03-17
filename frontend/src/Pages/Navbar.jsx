@@ -17,12 +17,12 @@ const Navbar = () => {
     getUserCart(); // Call function to fetch cart data
   }, []);
 
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchProduct, setSearchProduct] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    navigate(`/search/${searchTerm}`);
-    setSearchTerm("");
+    navigate(`/search/${searchProduct}`);
+    setSearchProduct("");
   };
 
   return (
@@ -54,10 +54,8 @@ const Navbar = () => {
 
           {/* Nav Links For All Screen, Logout Button For Small Screen*/}
           <div
-            className={`absolute z-40 md:static left-0 top-[10vh] w-full md:w-auto md:h-auto px-2 md:px-0 bg-[rgba(234,231,235,0.4)] md:bg-white backdrop-blur-xl overflow-hidden transition-[height] duration-300 ease-in-out ${
-              menuOpen ? "h-[90vh]" : "h-[0px]"
-            }`}
-          >
+            className={`absolute z-40 md:static left-0 top-[10vh] w-full md:w-auto md:h-auto px-2 md:px-0 bg-[rgba(234,231,235,0.4)] md:bg-white backdrop-blur-xl overflow-hidden transition-[height] duration-300 ease-in-out ${menuOpen ? "h-[90vh]" : "h-[0px]"}`}>
+          
             {/* Nav Links */}
             <ul
               className={`font-semibold text-sm flex gap:0 md:gap-4 lg:gap-12 flex-col md:flex-row`}
@@ -88,7 +86,7 @@ const Navbar = () => {
             {isAuthenticated && (
               <button
                 onClick={logoutUser}
-                className="flex md:hidden gap-1 items-center hover:bg-transparent text-[1.2rem] absolute bottom-8 border-[1px] border-[rgb(136,132,132)] rounded-[2rem] w-[95%] px-2"
+                className="flex md:hidden gap-1 items-center hover:bg-transparent text-[1.2rem] absolute bottom-28 border-[1px] border-[rgb(136,132,132)] rounded-[2rem] w-[95%] px-2"
                 aria-label="Logout"
               >
                 <MdLogout className="text-[1.2rem]" />
@@ -107,8 +105,8 @@ const Navbar = () => {
               className="bg-[#f5f5f6] w-full py-2 px-1.5 text-base focus:outline-none rounded-tr-lg rounded-br-lg"
               type="text"
               placeholder="Search Products"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              value={searchProduct}
+              onChange={(e) => setSearchProduct(e.target.value)}
               aria-label="Search for products"
             />
           </form>
@@ -182,7 +180,7 @@ const Navbar = () => {
                placeholder-black rounded-tr-3xl rounded-br-3xl"
               type="text"
               placeholder="Search Products"
-              value={searchTerm}
+              value={searchProduct}
               onChange={(e) => setSearchTerm(e.target.value)}
               aria-label="Search for products"
             />

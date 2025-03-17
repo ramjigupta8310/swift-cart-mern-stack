@@ -1,4 +1,0 @@
-.quantity-btn[disabled],
-.remove-button[disabled] {
-    pointer-events: none; 
-}

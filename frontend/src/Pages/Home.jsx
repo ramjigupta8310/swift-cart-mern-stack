@@ -1,9 +1,39 @@
-import React, { useContext } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import ProductContext from "../Context/ProductContext";
-
+import axios from "axios"
+import Loader from "../Components/Loader";
 const HomePageCategories = () => {
-  const { allCategories } = useContext(ProductContext);
+  const BASE_URL = import.meta.env.VITE_BASE_URL;
+  const [allCategories, setAllCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchAllCategories = async () => {
+      setLoading(true);
+      setError(null)
+      try {
+        const response = await axios.get(`${BASE_URL}/product/getallcategories`);
+        setAllCategories(response.data?.categories || []);
+      }
+      catch (error) {
+        console.error('Error fetching data:', {
+          message: error.response?.data?.message || error.message,
+          status: error.response?.status || "unknown error"
+        });
+        setError('Failed to load categories. Please try again later');
+      }
+      finally {
+        setLoading(false)
+      }
+    }
+    fetchAllCategories();
+  }, [])
+
+  if (loading) return <div className="text-center"><Loader /></div>
+  if (error) return <div className="text-center mt-[24vh]">{error}</div>
+
+
   return (
     <>
       <div className="w-full mt-[24vh] md:mt-[13vh] px-4 sm:px-8 lg:px-12 xl:px-20 py-4 flex flex-wrap gap-x-[5%] sm:gap-x-[4%] xl:gap-x-[2.5%] gap-y-[4vh]">

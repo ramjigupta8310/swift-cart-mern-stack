@@ -1,49 +1,86 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import ProductCart from "./ProductCart";
-import ProductContext from "../Context/ProductContext";
+import { MdKeyboardDoubleArrowRight } from "react-icons/md";
 import { BsFillHandbagFill } from "react-icons/bs";
 import { CiHeart } from "react-icons/ci";
-import CartContext from "../Context/CartContext";
-import { MdKeyboardDoubleArrowRight } from "react-icons/md";
+import cursorIcon from './Assets/cursor.svg';
 import { RiCloseLargeFill } from "react-icons/ri";
-import styles from "./ProductDetails.module.css";
+import CartContext from "../Context/CartContext";
+import ProductCart from "../Components/ProductCart";
+import axios from "axios";
+import Loader from "../Components/Loader";
 
 const ProductDetails = () => {
+  const BASE_URL = import.meta.env.VITE_BASE_URL
   const navigate = useNavigate();
   const { addToCart } = useContext(CartContext);
-  const {
-    ethnicWear,
-    sleepWear,
-    homeDecor,
-    workWear,
-    kidsWear,
-    sportsShoes,
-    officeWear,
-    mensWear,
-    casualStyles,
-    westernWear,
-    wfhWear,
-    womensFootwear,
-  } = useContext(ProductContext);
   const { category, id } = useParams();
+  // Loading State
+  const [loading, setLoading] = useState(true);
+  // Error State
+  const [error, setError] = useState(null);
+  // State To Store Selected Size
   const [selectedSize, setSelectedSize] = useState(null);
+  // State To Show Size Error If It is Not Selected
   const [showSizeError, setShowSizeError] = useState(false);
-  const [modalImage, setModalImage] = useState(null); // State for the modal image
-  const [isModalOpen, setIsModalOpen] = useState(false); // State to control modal visibility
+  // State To Store Which Img Will Open On Full Screen Mode
+  const [modalImage, setModalImage] = useState(null);
+  // State To Open Or Close The Full Screen Mode Img
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [notifications, setNotifications] = useState([]); // State for notifications image
+  // State To Disable The Add To Bag Button Untill Response Comes
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+  // Products State To Store All Products From Api
+  const [products, setProducts] = useState([]);
 
+  // Call Api To Get ProductsDetails Using category Coming From URL
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await axios.get(`${BASE_URL}/product/getproducts/${category}`);
+        setProducts(response.data.products);
+      } catch (error) {
+        console.error("Error fetching data:", {
+          message: error.response?.data?.message || error.message,
+          status: error.response?.status || error?.status || "unknown error"
+        })
+      }
+      finally {
+        setLoading(false);
+      }
+    }
+    fetchProducts();
+  }, [])
+
+  // Find The Product To Show Its Details From Products Came From Api 
+  const product = products?.find((item) => item._id === id);
+
+  // Function To Handle Which Image Is Clicked To View on Full Screen
+  const openModal = (imgSrc) => {
+    setModalImage(imgSrc);
+    setIsModalOpen(true);
+  };
+
+  // Function To Close The Modal From Full Screen
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
+  // Function To Store Selected Size And Hide The Error
   const handleSizeClick = (size) => {
     setSelectedSize(size);
     setShowSizeError(false);
   };
+
 
   const addToCartHandler = async (product) => {
     if (category !== "home-decor" && !selectedSize) {
       setShowSizeError(true);
       return;
     }
+    // Disable The Add To Bag Button While Waiting For The Response
     setIsButtonDisabled(true);
     try {
       await addToCart({
@@ -58,7 +95,7 @@ const ProductDetails = () => {
         selectedSize: selectedSize,
       });
 
-      // Notification show karo
+      // Show Notification When Product Added To Bag
       const newNotification = {
         id: Date.now(),
         image: product.imgSrc,
@@ -69,13 +106,18 @@ const ProductDetails = () => {
         newNotification,
       ]);
     } catch (error) {
-      // console.log(error)
+      console.error("Error adding to cart:", {
+        message: error.response?.data?.message || error.message,
+        status: error.response?.status || error?.status || "unknown error"
+      });
       if (error.response && error.response.status === 401) {
         // Agar 401 Unauthorized error aati hai to login page par navigate kar do
         navigate("/login");
       }
+      setError("Failed to add to cart. Please try again later");
     } finally {
-      setIsButtonDisabled(false); // Re-enable the button after receiving the response
+      // Re-enable the button after receiving the response
+      setIsButtonDisabled(false);
     }
   };
 
@@ -93,37 +135,8 @@ const ProductDetails = () => {
     };
   }, [notifications]);
 
-  const categories = {
-    "ethnic-wear": ethnicWear,
-    "sleep-wear": sleepWear,
-    "home-decor": homeDecor,
-    "work-wear": workWear,
-    "kids-wear": kidsWear,
-    "sports-shoes": sportsShoes,
-    "office-wear": officeWear,
-    "men's-wear": mensWear,
-    "casual-styles": casualStyles,
-    "western-wear": westernWear,
-    "wfh-wear": wfhWear,
-    "women's-footwear": womensFootwear,
-  };
-
-  const categoryArray = categories[category];
-
-  const product = categoryArray?.find((item) => item._id === id);
-
-  if (!product) {
-    return <div>Product not found!</div>; // Handle the case where the product is not found
-  }
-
-  const openModal = (imgSrc) => {
-    setModalImage(imgSrc);
-    setIsModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
+  if (loading) return <div className="text-center"><Loader /></div>
+  if (error) return <div className="text-center h-[100vh]">{error}</div>
 
   return (
     <>
@@ -149,13 +162,14 @@ const ProductDetails = () => {
                 src && (
                   <div
                     key={index}
-                    className={`${styles["custom-cursor"]} w-[49.5%] overflow-hidden`}
+                    className={`w-[49.5%] overflow-hidden`}
+                    style={{ cursor: `url(${cursorIcon}), auto` }}
                   >
                     <img
                       src={src}
                       alt={`Product Image ${index + 1}`}
                       onClick={() => openModal(src)}
-                      className={`transition-transform duration-300 hover:scale-[1.07] w-full`}
+                      className={`transition-transform duration-300 hover:scale-[1.05] w-full`}
                     />
                   </div>
                 )
@@ -203,11 +217,10 @@ const ProductDetails = () => {
                 {product.sizes?.map((size, index) => (
                   <button
                     key={index}
-                    className={`w-14 h-14 rounded-full border-[1px] border-[#8d8f9a] hover:border-[#ff3e6c] font-bold ml-2 mt-3 ${
-                      selectedSize === size
-                        ? "text-[#fa3d69] border-[2px] border-[#fa3d69]"
-                        : ""
-                    }`}
+                    className={`w-14 h-14 rounded-full border-[1px] border-[#8d8f9a] hover:border-[#ff3e6c] font-bold ml-2 mt-3 ${selectedSize === size
+                      ? "text-[#fa3d69] border-[2px] border-[#fa3d69]"
+                      : ""
+                      }`}
                     onClick={() => handleSizeClick(size)}
                   >
                     {size}
@@ -221,11 +234,10 @@ const ProductDetails = () => {
               <button
                 onClick={() => addToCartHandler(product)}
                 disabled={isButtonDisabled}
-                className={`flex items-center justify-center gap-x-3 text-lg w-[55%] py-2.5 font-semibold hover:bg-[#dc3b60] bg-[#ff3e6c] text-white rounded-lg ${
-                  isButtonDisabled
-                    ? "pointer-events-none opacity-50"
-                    : "pointer-events-auto"
-                }`}
+                className={`flex items-center justify-center gap-x-3 text-lg w-[55%] py-2.5 font-semibold hover:bg-[#dc3b60] bg-[#ff3e6c] text-white rounded-lg ${isButtonDisabled
+                  ? "pointer-events-none opacity-50"
+                  : "pointer-events-auto"
+                  }`}
               >
                 <BsFillHandbagFill className="text-xl" />
                 ADD TO BAG
@@ -256,22 +268,22 @@ const ProductDetails = () => {
         ))}
       </div>
 
-      {/* Modal for displaying the image */}
+      {/* Product Images To Show On Full Screen Mode */}
       {isModalOpen && (
         // <div className="image-modal">
-        <div className="fixed top-0 z-50 h-[100vh] w-full bg-white flex flex-col sm:gap-x-2 gap-y-2 sm:gap-y-0 sm:flex-row justify-center items-center">
-          <div className="h-[80vh] sm:h-full">
-            <img
-              src={modalImage}
-              alt="Modal View"
-              className="object-contain h-full rounded-md"
-            />
-            <button
-              className="flex justify-center items-center absolute top-0 right-0 md:top-4 md:right-6 bg-[rgb(241,232,232)] hover:bg-[rgb(197,192,192)] w-7 h-7 sm:w-8 sm:h-8 bg-[rgb(241,232, 232)] rounded-md cursor-pointer"
+        <div className="fixed top-0 z-50 h-[100vh] w-full bg-white flex flex-col gap-y-2 sm:gap-x-2 sm:gap-y-0 sm:flex-row justify-center items-center">
+          <div className="h-[70vh] sm:h-full">
+          <button
+              className="absolute top-4 right-2 md:top-4 md:right-6 cursor-pointer"
               onClick={closeModal}
             >
               <RiCloseLargeFill className="text-xl" />
             </button>
+            <img
+              src={modalImage}
+              alt="Modal View"
+              className="object-cover h-full rounded-md"
+            />
           </div>
           <div className="flex flex-row sm:flex-col gap-y-2 gap-x-2">
             {[
@@ -299,7 +311,7 @@ const ProductDetails = () => {
 
       <div className="py-8 px-3 md:px-6 lg:px-10 xl:px-14">
         <h5 className="mb-4 font-semibold">SIMILAR PRODUCTS</h5>
-        <ProductCart items={categoryArray} />
+        <ProductCart items={products} />
       </div>
     </>
   );

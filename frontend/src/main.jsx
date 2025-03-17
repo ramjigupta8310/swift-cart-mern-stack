@@ -5,18 +5,15 @@ import App from './App.jsx'
 import './index.css'
 import UserState from './Context/UserState.jsx';
 import CartState from './Context/CartState.jsx';
-import ProductState from './Context/ProductState.jsx';
 
 createRoot(document.getElementById('root')).render(
-  // <StrictMode>
-  <BrowserRouter>
-    <UserState>
-      <CartState>
-        <ProductState>
+  <StrictMode>
+    <BrowserRouter>
+      <UserState>
+        <CartState>
           <App />
-        </ProductState>
-      </CartState>
-    </UserState>
-  </BrowserRouter>
-  // </StrictMode>
+        </CartState>
+      </UserState>
+    </BrowserRouter>
+  </StrictMode>
 )

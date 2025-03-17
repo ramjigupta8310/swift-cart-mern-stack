@@ -1,28 +1,30 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
-import Navbar from "./Components/Navbar";
-import HomePageCategoriesProduct from "./Components/HomePageCategoriesProduct";
 import "./App.css";
-import ProductDetails from "./Components/ProductDetails";
-import Men from "./Components/Men";
-import Women from "./Components/Women";
-import Kids from "./Components/Kids";
-import Cart from "./Components/Cart";
-import Footer from "./Components/Footer";
-import SearchProduct from "./Components/SearchProduct";
-import UserRegister from "./User Components/UserRegister";
-import UserLogin from "./User Components/UserLogin";
-import ForgetPassword from "./User Components/ForgetPassword";
+import { Routes, Route } from "react-router-dom";
+import ScrollToTop from "./Components/ScrollToTop";
+import Navbar from "./Pages/Navbar";
+import Men from "./Pages/Men";
+import Women from "./Pages/Women";
+import Home from "./Pages/Home";
+import Kids from "./Pages/Kids";
+import CategoryProduct from "./Pages/CategoryProduct";
+import ProductDetails from "./Pages/ProductDetails";
+import Cart from "./Pages/Cart";
+import Footer from "./Pages/Footer";
+import SearchProduct from "./Pages/SearchProduct";
+import UserRegister from "./Pages/UserRegister";
+import UserLogin from "./Pages/UserLogin";
+import ForgetPassword from "./Pages/ForgetPassword";
 import ProtectedRoute from "./Context/ProtectedRoutes";
-import HomePageCategories from "./Components/HomePageCategories";
 
 const App = () => {
   return (
     <>
+      <ScrollToTop />
       <Navbar />
       <Routes>
-        <Route path="/" element={<HomePageCategories />} />
-        <Route path="/category/:cat" element={<HomePageCategoriesProduct />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/category/:cat" element={<CategoryProduct />} />
         <Route
           path="/category/:category/:tittle/:description/:id"
           element={<ProductDetails />}

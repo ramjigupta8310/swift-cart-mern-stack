@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import styles from "./Cart.module.css";
 import CartContext from "../Context/CartContext";
 import UserContext from "../Context/UserContext";
 import logo from "./Assets/SwiftCartLogo.png";
@@ -24,7 +23,7 @@ const Cart = () => {
     getUserCart();
   }, []);
 
-  // Handle payment processing
+  // Handle Payment Processing
   const handleProceedToPay = async () => {
     const options = {
       key: "rzp_test_Z4iwtgCrFQTxQP", // Replace with your Razorpay Test Key
@@ -65,36 +64,78 @@ const Cart = () => {
     paymentObject.open();
   };
 
-  // Clear the entire cart
+  // Clear The Entire Cart
   const handleClearCart = async () => {
-    await clearCart();
+    try {
+      await clearCart();
+    }
+    catch (error) {
+      console.error("Failed to clear cart:", {
+        message: error.response?.data?.message || error.message,
+        status: error.response?.status || error?.status || "unknown error"
+      });
+      if (error.response?.status === 401) {
+        navigate("/login"); // 401 pe redirect
+      }
+    }
   };
 
-  // Remove a specific product
+  // Remove A Specific Product
   const handleRemoveProduct = async (productId, selectedSize) => {
     setLoadingProductId(`${productId}-${selectedSize}`);
-    await removeProduct(productId, selectedSize);
-    setLoadingProductId(null);
+    try {
+      await removeProduct(productId, selectedSize);
+    } catch (error) {
+      console.error("Failed to remove product:", {
+        message: error.response?.data?.message || error.message,
+        status: error.response?.status || error?.status || "unknown error"
+      });
+      if (error.response?.status === 401) {
+        navigate("/login"); // 401 pe redirect
+      }
+    } finally {
+      setLoadingProductId(null); // Har haal mein loading reset
+    }
   };
 
+  // Handle Increase Quantity
   const handleIncreaseQuantity = async (productId, selectedSize) => {
     setLoadingProductId(`${productId}-${selectedSize}`);
-    await increaseQuantity(productId, selectedSize); // Increase quantity of a product
-    setLoadingProductId(null);
+    try {
+      await increaseQuantity(productId, selectedSize); // Increase Quantity Of A Product
+    } catch (error) {
+      console.error("Failed to increase quantity:", {
+        message: error.response?.data?.message || error.message,
+        status: error.response?.status || error?.status || "unknown error"
+      });
+      if (error.response?.status === 401) {
+        navigate("/login"); // 401 pe redirect
+      }
+    } finally {
+      setLoadingProductId(null); // Har haal mein loading reset
+    }
   };
 
-  const handleDecreaseQuantity = async (
-    productId,
-    selectedSize,
-    currentQuantity
-  ) => {
+  // Handle Decrease Quantity
+  const handleDecreaseQuantity = async (productId, selectedSize, currentQuantity) => {
     if (currentQuantity === 1) return;
     setLoadingProductId(`${productId}-${selectedSize}`);
-    await decreaseQuantity(productId, selectedSize); // Decrease quantity of a product
-    setLoadingProductId(null);
+    try {
+      await decreaseQuantity(productId, selectedSize); // Decrease Quantity Of A Product
+    } catch (error) {
+      console.error("Failed to decrease quantity:", {
+        message: error.response?.data?.message || error.message,
+        status: error.response?.status || error?.status || "unknown error"
+      });
+      if (error.response?.status === 401) {
+        navigate("/login"); // 401 pe redirect
+      }
+    } finally {
+      setLoadingProductId(null); // Har haal mein loading reset
+    }
   };
 
-  // Calculate price details
+  // Calculate Price Details
   const calculatePriceDetails = () => {
     const totalRealPrice = cart?.items?.reduce(
       (acc, product) => acc + product.totalProductRealValue,
@@ -135,19 +176,18 @@ const Cart = () => {
               <div className="w-full md:w-[65%]">
                 {cart?.items?.map((product) => (
                   <div
-                    className={`border-2 border-[#eaeaec] px-2 pt-2 pb-3 my-4 md:pb-4 rounded-[4px] ${
-                      loadingProductId ===
+                    className={`border-2 border-[#eaeaec] px-2 pt-2 pb-3 my-4 md:pb-4 rounded-[4px] ${loadingProductId ===
                       `${product.productId}-${product.selectedSize}`
-                        ? "opacity-50"
-                        : ""
-                    }`}
+                      ? "opacity-50"
+                      : ""
+                      }`}
                     key={`${product.productId}-${product.selectedSize}`}
                   >
                     {/* Product Image, Title, Description, Size, Price */}
                     <div className="flex gap-4">
                       {/* Product Image */}
                       <div className="w-28 flex-none">
-                        <img src={product.imgSrc} alt="product" className="w-full object-cover"/>
+                        <img src={product.imgSrc} alt="product" className="w-full object-cover" />
                       </div>
 
                       <div className="flex flex-col justify-around">
@@ -187,11 +227,10 @@ const Cart = () => {
                       <div className="flex items-center justify-center gap-2">
                         {/* Decrease Quantity Button */}
                         <button
-                          className={`${styles["quantity-btn"]} w-8 h-8 border-[#c2c2c2] border-[1.5px] text-2xl font-semibold cursor-pointer rounded-full text-[#333] flex items-center justify-center hover:bg-[#e0e0e0] ${
-                            product.quantity === 1
-                              ? "pointer-events-none"
-                              : "pointer-events-auto"
-                          }`}
+                          className={`w-8 h-8 border-[#c2c2c2] border-[1.5px] text-2xl font-semibold cursor-pointer rounded-full text-[#333] flex items-center justify-center hover:bg-[#e0e0e0] ${product.quantity === 1
+                            ? "pointer-events-none"
+                            : "pointer-events-auto"
+                            }`}
                           onClick={() =>
                             handleDecreaseQuantity(
                               product.productId,
@@ -214,7 +253,7 @@ const Cart = () => {
 
                         {/* Increase Quantity Button */}
                         <button
-                          className={`${styles["quantity-btn"]} w-8 h-8 border-[#c2c2c2] border-[1.5px] text-2xl font-semibold cursor-pointer rounded-full text-[#333] flex items-center justify-center hover:bg-[#e0e0e0]`}
+                          className={`w-8 h-8 border-[#c2c2c2] border-[1.5px] text-2xl font-semibold cursor-pointer rounded-full text-[#333] flex items-center justify-center hover:bg-[#e0e0e0]`}
                           onClick={() =>
                             handleIncreaseQuantity(
                               product.productId,
@@ -232,7 +271,7 @@ const Cart = () => {
 
                       {/* Product Remove */}
                       <button
-                        className={`${styles["quantity-btn"]} text-lg font-semibold cursor-pointer`}
+                        className={`text-lg font-semibold cursor-pointer`}
                         onClick={() =>
                           handleRemoveProduct(
                             product.productId,

@@ -23,7 +23,7 @@ const CartState = ({ children }) => {
 
 
     const axiosInstance = axios.create({
-        baseURL: 'https://swift-cart-mern-stack-backend.onrender.com/api',
+        baseURL: import.meta.env.VITE_BASE_URL,
         headers: {
             Authorization: token,
         },
@@ -31,9 +31,7 @@ const CartState = ({ children }) => {
 
     // Get User Cart API call
     const getUserCart = async () => {
-        if (!isAuthenticated) {
-            return;
-        }
+        if (!isAuthenticated) return;
         try {
             const response = await axiosInstance.get('/cart/get-user-cart');
             setCart(response.data.cart);
@@ -46,14 +44,14 @@ const CartState = ({ children }) => {
         }
     };
 
-    // Add Product to Cart API call
+    // Call Api To Add Product
     const addToCart = async (productData) => {
         try {
-            const response = await axiosInstance.post('/cart/add', productData);
-            await getUserCart(); // Fetch the updated cart after adding product
-            return response.data;
+            await axiosInstance.post('/cart/add', productData);
+            // Fetch The Updated Cart After Adding Product
+            await getUserCart();
         } catch (error) {
-            setIsAuthenticated(false);
+            if (error.response?.status === 401) setIsAuthenticated(false);
             throw error;
         }
     };
@@ -61,43 +59,44 @@ const CartState = ({ children }) => {
     // Decrease Quantity API call
     const decreaseQuantity = async (productId, selectedSize) => {
         try {
-            const response = await axiosInstance.post('/cart/decrease-quantity', { productId, selectedSize });
-            await getUserCart(); // Fetch the updated cart after decreasing quantity
-            return response.data;
+            await axiosInstance.post('/cart/decrease-quantity', { productId, selectedSize });
+            await getUserCart(); // Fetch The Updated Cart After Decreasing Quantity
         } catch (error) {
-            return error;
+            if (error.response?.status === 401) setIsAuthenticated(false);
+            throw error;
         }
     };
 
+    // Increase Quantity API call
     const increaseQuantity = async (productId, selectedSize) => {
         try {
-            const response = await axiosInstance.post('/cart/increase-quantity', { productId, selectedSize });
+            await axiosInstance.post('/cart/increase-quantity', { productId, selectedSize });
             await getUserCart(); // Fetch the updated cart after decreasing quantity
-            return response.data;
         } catch (error) {
-            return error;
+            if (error.response?.status === 401) setIsAuthenticated(false);
+            throw error;
         }
     };
 
     // Remove Product from Cart API call
     const removeProduct = async (productId, selectedSize) => {
         try {
-            const response = await axiosInstance.post('/cart/remove-product', { productId, selectedSize });
+            await axiosInstance.post('/cart/remove-product', { productId, selectedSize });
             await getUserCart(); // Fetch the updated cart after removing product
-            return response.data;
         } catch (error) {
-            return error;
+            if (error.response?.status === 401) setIsAuthenticated(false);
+            throw error;
         }
     };
 
     // Clear Cart API call
     const clearCart = async () => {
         try {
-            const response = await axiosInstance.post('/cart/clear-cart');
-            await getUserCart(); // Fetch the updated cart after clearing the cart
-            return response.data;
+            await axiosInstance.post('/cart/clear-cart');
+            await getUserCart(); // Fetch the Updated Cart After Clearing The Cart
         } catch (error) {
-            return error;
+            if(error.response?.status === 401) setIsAuthenticated(false);
+            throw error;
         }
     };
 
