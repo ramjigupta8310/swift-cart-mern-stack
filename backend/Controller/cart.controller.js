@@ -25,8 +25,8 @@ export const addToCart = async (req, res) => {
             item.quantity += quantity;
             item.totalProductValue = item.price * item.quantity;
             item.totalProductRealValue = item.realPrice * item.quantity
-        } 
-        
+        }
+
         // Add new product to the cart
         else {
             // Calculate and update cart totals
@@ -63,7 +63,7 @@ export const addToCart = async (req, res) => {
 export const decreaseQuantity = async (req, res) => {
     try {
         const userId = req.user.userId;
-        const { productId,selectedSize } = req.body;
+        const { productId, selectedSize } = req.body;
 
         // Find the user's cart
         let cart = await Cart.findOne({ user: userId });
@@ -72,7 +72,7 @@ export const decreaseQuantity = async (req, res) => {
         }
 
         // Check if the product exists in the cart
-        const existingItemIndex = cart.items.findIndex(item => item.productId.toString() === productId && item.selectedSize === selectedSize );
+        const existingItemIndex = cart.items.findIndex(item => item.productId.toString() === productId && item.selectedSize === selectedSize);
 
         if (existingItemIndex >= 0) {
             const item = cart.items[existingItemIndex];
@@ -122,7 +122,7 @@ export const decreaseQuantity = async (req, res) => {
 export const increaseQuantity = async (req, res) => {
     try {
         const userId = req.user.userId;
-        const { productId,selectedSize } = req.body;
+        const { productId, selectedSize } = req.body;
 
         // Find the user's cart
         let cart = await Cart.findOne({ user: userId });
@@ -170,7 +170,7 @@ export const increaseQuantity = async (req, res) => {
 export const removeProduct = async (req, res) => {
     try {
         const userId = req.user.userId;
-        const { productId,selectedSize } = req.body;
+        const { productId, selectedSize } = req.body;
 
         // Find the user's cart
         let cart = await Cart.findOne({ user: userId });
@@ -255,7 +255,7 @@ export const clearCart = async (req, res) => {
         await cart.save();
 
         // After clearing the cart, delete it from the database
-        await cart.deleteOne(); 
+        await cart.deleteOne();
 
         res.status(200).json({
             message: "Cart cleared successfully",
