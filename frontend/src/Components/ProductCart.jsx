@@ -17,12 +17,14 @@ const Product = ({ items }) => {
 
   // Page change handlers
   const goToNextPage = () => {
+    window.scrollTo(0, 0);
     if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1);
     }
   };
 
   const goToPreviousPage = () => {
+    window.scrollTo(0, 0);
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
     }
