@@ -16,7 +16,7 @@ const Men = () => {
       try {
         const responseWfhWear = await axios.get(`${BASE_URL}/product/getproducts/wfh-wear`);
 
-        const responseMensWear = await axios.get(`${BASE_URL}/product/getproducts/mens-wear`);
+        const responseMensWear = await axios.get(`${BASE_URL}/product/getproducts/men's-wear`);
 
         const mergedProducts = [...responseWfhWear.data?.products || [], 
         ...responseMensWear.data?.products || []];
